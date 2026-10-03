@@ -157,13 +157,45 @@ async def main():
             elif cmd == "/clear":
                 agent.clear_context()
                 print_success("Context history cleared.")
-            elif cmd == "/model":
+            elif cmd in ("/model", "/models"):
                 if arg:
                     agent.set_model(arg)
                     print_success(f"Switched active model to: [bold]{arg}[/bold]")
                 else:
-                    console.print(f"Current model: [bold green]{agent.active_model}[/bold green]")
-                    console.print("[dim]Quick switch: /model hermes3:8b | /model qwen2.5-coder:7b-instruct-q5_K_M[/dim]")
+                    table = Table(title="🤖 Available Local AI Models", border_style="bright_blue")
+                    table.add_column("Model Name", style="bold cyan")
+                    table.add_column("Type", style="green")
+                    table.add_column("Size", style="yellow")
+                    table.add_column("Status", style="magenta")
+
+                    # Query Ollama models via API
+                    try:
+                        import httpx
+                        async with httpx.AsyncClient(timeout=3.0) as client:
+                            resp = await client.get(f"{agent.engine.base_url}/api/tags")
+                            if resp.status_code == 200:
+                                for m in resp.json().get("models", []):
+                                    m_name = m.get("name", "")
+                                    m_size_bytes = m.get("size", 0)
+                                    m_size_gb = f"{m_size_bytes / (1024**3):.1f} GB" if m_size_bytes else "N/A"
+                                    is_active = (m_name == agent.active_model)
+                                    status = "● Active" if is_active else "Available"
+                                    table.add_row(m_name, "Ollama", m_size_gb, status)
+                    except Exception:
+                        pass
+
+                    # Query ~/models directory for local GGUF models
+                    models_dir = Path.home() / "models"
+                    if models_dir.exists():
+                        for gguf in sorted(models_dir.glob("*.gguf")):
+                            size_gb = f"{gguf.stat().st_size / (1024**3):.1f} GB"
+                            is_active = (gguf.stem == agent.active_model)
+                            status = "● Active" if is_active else "Available (llama.cpp / g15)"
+                            table.add_row(gguf.name, "GGUF", size_gb, status)
+
+                    console.print(table)
+                    console.print(f"Current active model: [bold green]{agent.active_model}[/bold green]")
+                    console.print("[dim]Switch active model with: /model <name>[/dim]")
             elif cmd == "/desktop":
                 if arg.lower() in ("on", "true", "enable"):
                     config["tools"]["enable_desktop"] = True
