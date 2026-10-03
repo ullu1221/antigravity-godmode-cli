@@ -74,6 +74,10 @@ class ToolResult(BaseModel):
     execution_time: float = 0.0
     tool_call_id: Optional[str] = None
 
+    @property
+    def success(self) -> bool:
+        return not self.is_error
+
 
 class AgentResponse(BaseModel):
     content: Optional[str] = ""
