@@ -182,7 +182,7 @@ class LLMEngine:
         tag_pattern = re.compile(r"<tool_call>\s*(\{.*?\})\s*</tool_call>", re.DOTALL)
         for m in tag_pattern.findall(content):
             try:
-                obj = json.loads(m.strip())
+                obj = json.loads(m.strip(), strict=False)
                 if isinstance(obj, dict) and "name" in obj:
                     calls.append(ToolCall(
                         name=obj["name"],
@@ -198,7 +198,7 @@ class LLMEngine:
         code_block_pattern = re.compile(r"```(?:json)?\s*(\{[^`]+\})\s*```", re.DOTALL)
         for m in code_block_pattern.findall(content):
             try:
-                obj = json.loads(m.strip())
+                obj = json.loads(m.strip(), strict=False)
                 if isinstance(obj, dict) and "name" in obj and ("arguments" in obj or "parameters" in obj):
                     calls.append(ToolCall(
                         name=obj["name"],
@@ -223,7 +223,7 @@ class LLMEngine:
                         if depth == 0:
                             candidate = content[i:j+1]
                             try:
-                                obj = json.loads(candidate)
+                                obj = json.loads(candidate, strict=False)
                                 if isinstance(obj, dict) and "name" in obj and ("arguments" in obj or "parameters" in obj):
                                     calls.append(ToolCall(
                                         name=obj["name"],

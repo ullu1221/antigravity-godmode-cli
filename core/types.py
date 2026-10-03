@@ -14,7 +14,7 @@ class ToolCall(BaseModel):
         args = func.get("arguments", {})
         if isinstance(args, str):
             try:
-                args = json.loads(args)
+                args = json.loads(args, strict=False)
             except Exception:
                 args = {"raw": args}
         return cls(
