@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+# Antigravity Godmode CLI Launcher
+# Automatically activates ~/agent-env and executes the CLI
+
+set -e
+
+SOURCE="${BASH_SOURCE[0]}"
+while [ -h "$SOURCE" ]; do
+  DIR="$(cd -P "$(dirname "$SOURCE")" >/dev/null 2>&1 && pwd)"
+  SOURCE="$(readlink "$SOURCE")"
+  [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE"
+done
+SCRIPT_DIR="$(cd -P "$(dirname "$SOURCE")/.." >/dev/null 2>&1 && pwd)"
+
+VENV_PYTHON="/home/p/agent-env/bin/python3"
+
+if [[ ! -f "$VENV_PYTHON" ]]; then
+    echo "[ERROR] Virtualenv python not found at $VENV_PYTHON"
+    exit 1
+fi
+
+export PYTHONPATH="$SCRIPT_DIR:${PYTHONPATH:-}"
+exec "$VENV_PYTHON" "$SCRIPT_DIR/main.py" "$@"

@@ -1,0 +1,47 @@
+# Antigravity Godmode CLI Configuration
+# Dell G15 5530: Intel i5-13450HX + NVIDIA RTX 3050 6GB
+
+endpoints:
+  ollama:
+    base_url: "http://localhost:11434"
+    type: "ollama"
+  llama_cpp:
+    base_url: "http://localhost:8080/v1"
+    type: "openai"
+
+models:
+  coder:
+    name: "qwen2.5-coder:7b-instruct-q5_K_M"
+    endpoint: "ollama"
+    temperature: 0.2
+    top_p: 0.95
+    description: "Fast 100% GPU offloaded coder (~38 tok/s, high AST precision)"
+  orchestrator:
+    name: "hermes3:8b"
+    endpoint: "ollama"
+    temperature: 0.4
+    top_p: 0.95
+    description: "Uncensored generalist & strategic planner (~35 tok/s, zero refusals)"
+  heavy:
+    name: "Qwen2.5-14B-Instruct-Q4_K_M"
+    endpoint: "llama_cpp"
+    temperature: 0.3
+    top_p: 0.90
+    description: "Hybrid CPU/GPU 14B model (~9.0 tok/s, deep reasoning)"
+
+active_model: "qwen2.5-coder:7b-instruct-q5_K_M"
+
+agent:
+  max_iterations: 30
+  max_history_turns: 40
+  speculative_racing: true
+  liquid_refinement: true
+  auto_test_verification: true
+  working_dir: "."
+
+tools:
+  enable_bash: true
+  enable_files: true
+  enable_search: true
+  enable_web: true
+  enable_desktop: false  # Wayland screen/mouse/keyboard control
