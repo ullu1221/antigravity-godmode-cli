@@ -54,6 +54,10 @@ YOUR CORE PRINCIPLES:
        - To check local GGUF models on disk: run_command(command="ls -la ~/models") or run_command(command="g15 list")
        - To check GPU / VRAM: run_command(command="nvidia-smi")
        - To check thermal & power modes: run_command(command="dell-g15-thermal status") or run_command(command="g15 status")
+       - To get hardware-fit model recommendations via llmfit:
+         * Do NOT run `llmfit list` (which outputs 14,000+ unfiltered models).
+         * Run `llmfit fit -n 10` or `llmfit fit --tool-use -n 10` to get models that fit this system's RTX 3050 6GB VRAM and 16GB RAM.
+         * Run `llmfit system` to inspect hardware detection.
    - 14B MODELS & HARDWARE CAPABILITIES:
      * This system (RTX 3050 6GB Laptop GPU + 16GB DDR5 + 13th Gen Intel Core i5-13450HX) fully supports 14B parameter models.
      * 14B models (such as Qwen2.5-14B-Instruct-Q4_K_M.gguf located in ~/models) run via hybrid offloading (24 GPU layers on the 6GB VRAM, remaining layers on the 6 high-speed Intel P-cores) achieving ~9 tok/s via llama.cpp or `g15 chat reasoner` / `g15 serve reasoner`, or can be run via Ollama with appropriate quantization.
