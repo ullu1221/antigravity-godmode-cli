@@ -55,5 +55,8 @@ class ContextManager:
         # Keep the most recent messages
         recent_msgs = self.messages[-self.max_turns:]
         
-        # Ensure we don't start immediately after an orphaned tool response without assistant
+        # Ensure we don't start with an orphaned tool response without assistant
+        while recent_msgs and recent_msgs[0].role == "tool":
+            recent_msgs.pop(0)
+
         self.messages = [sys_msg] + recent_msgs

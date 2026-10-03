@@ -89,13 +89,11 @@ class LLMEngine:
         tool_calls_raw = msg.get("tool_calls") or []
 
         tool_calls: List[ToolCall] = []
-        for tc in tool_calls_raw:
-            func = tc.get("function", {})
-            tool_calls.append(ToolCall(
-                id=tc.get("id", f"call_{len(tool_calls)}"),
-                name=func.get("name", ""),
-                arguments=func.get("arguments", {})
-            ))
+        for i, tc in enumerate(tool_calls_raw):
+            parsed = ToolCall.from_dict(tc)
+            if not parsed.id:
+                parsed.id = f"call_{i}"
+            tool_calls.append(parsed)
 
         # Robust Fallback: Extract JSON tool calls embedded in content if none caught natively
         if not tool_calls and raw_content:
@@ -144,18 +142,11 @@ class LLMEngine:
         tool_calls_raw = msg.get("tool_calls") or []
 
         tool_calls: List[ToolCall] = []
-        for tc in tool_calls_raw:
-            func = tc.get("function", {})
-            args_str = func.get("arguments", "{}")
-            try:
-                args = json.loads(args_str) if isinstance(args_str, str) else args_str
-            except Exception:
-                args = {"raw": args_str}
-            tool_calls.append(ToolCall(
-                id=tc.get("id", f"call_{len(tool_calls)}"),
-                name=func.get("name", ""),
-                arguments=args
-            ))
+        for i, tc in enumerate(tool_calls_raw):
+            parsed = ToolCall.from_dict(tc)
+            if not parsed.id:
+                parsed.id = f"call_{i}"
+            tool_calls.append(parsed)
 
         if not tool_calls and raw_content:
             extracted_calls, cleaned_content = self._extract_embedded_tool_calls(raw_content)

@@ -1,7 +1,7 @@
 import asyncio
 import os
 import time
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 from tools.base import BaseTool
 from core.types import ToolResult
 

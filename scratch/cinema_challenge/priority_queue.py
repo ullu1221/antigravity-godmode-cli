@@ -10,7 +10,7 @@ class PriorityTaskQueue:
     def push(self, task_id: str, priority: int, payload: Any = None) -> None:
         # Priority contract: Higher integer = HIGHER priority (100 pops before 1)
         # In min-heap, pushing priority directly causes lowest priority to pop first
-        heapq.heappush(self._heap, (priority, self._counter, task_id, payload))
+        heapq.heappush(self._heap, (-priority, self._counter, task_id, payload))
         self._counter += 1
 
     def pop(self) -> Optional[Dict[str, Any]]:

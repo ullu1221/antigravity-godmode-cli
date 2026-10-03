@@ -144,7 +144,7 @@ class AutonomousAgent:
             consecutive_empty_directives = 0
 
             # Execute tool calls
-            for tc in response.tool_calls:
+            for tc_idx, tc in enumerate(response.tool_calls):
                 print_tool_call(tc.name, tc.arguments)
                 
                 # Execute tool
@@ -162,7 +162,7 @@ class AutonomousAgent:
                 self.context.add_tool_result(
                     tool_name=tc.name,
                     content=feedback_content,
-                    tool_call_id=tc.id or f"call_{iteration}"
+                    tool_call_id=tc.id or f"call_{iteration}_{tc_idx}"
                 )
 
                 # If bash changed directory, update agent cwd

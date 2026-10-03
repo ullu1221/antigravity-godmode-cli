@@ -215,8 +215,8 @@ class ReplaceFileContentTool(BaseTool):
     ) -> ToolResult:
         start_time = time.time()
         path = path or kwargs.get("file") or kwargs.get("filename") or kwargs.get("target_file")
-        target_content = target_content if target_content is not None else (kwargs.get("target") or kwargs.get("old_content") or kwargs.get("search"))
-        replacement_content = replacement_content if replacement_content is not None else (kwargs.get("replacement") or kwargs.get("new_content") or kwargs.get("replace") or kwargs.get("content"))
+        target_content = target_content if target_content is not None else (kwargs.get("old_str") or kwargs.get("target") or kwargs.get("old_content") or kwargs.get("search"))
+        replacement_content = replacement_content if replacement_content is not None else (kwargs.get("new_str") or kwargs.get("replacement") or kwargs.get("new_content") or kwargs.get("replace") or kwargs.get("content"))
 
         if not path:
             return ToolResult(tool_name=self.name, content="Error: 'path' argument is required.", is_error=True, execution_time=time.time() - start_time)

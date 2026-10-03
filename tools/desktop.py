@@ -3,6 +3,7 @@ import os
 import tempfile
 import base64
 import time
+from typing import Optional
 from tools.base import BaseTool
 from core.types import ToolResult
 
