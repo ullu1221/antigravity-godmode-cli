@@ -43,6 +43,10 @@ def show_help():
 | :--- | :--- |
 | **`/help`** | Display this command overview |
 | **`/model [name]`** | Show available models or switch the active model |
+| **`/coder`** | Quick-switch to Qwen2.5-Coder-7B (100% GPU, ~38 tok/s) |
+| **`/uncensored`** or **`/agent`** | Quick-switch to Hermes-3-8B (100% Uncensored agent, ~35 tok/s) |
+| **`/reasoner`** | Quick-switch to Qwen2.5-14B (Deep hybrid reasoning, ~9.5 tok/s) |
+| **`/fast`** | Quick-switch to Gemma-4-e4B (Ultra-low latency, ~70 tok/s) |
 | **`/tools`** | List all registered tools and their signatures |
 | **`/status`** | View local LLM backend health, VRAM, and context usage |
 | **`/desktop [on\|off]`** | Toggle Wayland desktop control (screenshots & ydotool) |
@@ -196,6 +200,18 @@ async def main():
                     console.print(table)
                     console.print(f"Current active model: [bold green]{agent.active_model}[/bold green]")
                     console.print("[dim]Switch active model with: /model <name>[/dim]")
+            elif cmd == "/coder":
+                agent.set_model("qwen2.5-coder:7b-instruct-q5_K_M")
+                print_success("Switched to [bold cyan]Coder Preset[/bold cyan] (Qwen2.5-Coder-7B: 100% GPU, ~38 tok/s)")
+            elif cmd in ("/agent", "/uncensored"):
+                agent.set_model("hermes3:8b")
+                print_success("Switched to [bold magenta]Uncensored Agent Preset[/bold magenta] (Hermes-3-8B: 100% Uncensored, ~35 tok/s)")
+            elif cmd == "/reasoner":
+                agent.set_model("qwen2.5-14b:latest")
+                print_success("Switched to [bold yellow]Reasoner Preset[/bold yellow] (Qwen2.5-14B: Hybrid 14B Reasoning, ~9.5 tok/s)")
+            elif cmd == "/fast":
+                agent.set_model("gemma4:e4b")
+                print_success("Switched to [bold green]Fast Preset[/bold green] (Gemma-4-e4B: Ultra-Low Latency, ~70 tok/s)")
             elif cmd == "/desktop":
                 if arg.lower() in ("on", "true", "enable"):
                     config["tools"]["enable_desktop"] = True
