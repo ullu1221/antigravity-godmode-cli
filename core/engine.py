@@ -1,3 +1,4 @@
+import os
 import json
 import re
 import shlex
@@ -8,9 +9,20 @@ from core.types import Message, ToolCall, AgentResponse
 
 
 class LLMEngine:
-    def __init__(self, base_url: str = "http://localhost:11434", default_model: str = "qwen2.5-coder:7b-instruct-q5_K_M"):
+    def __init__(
+        self,
+        base_url: str = "http://localhost:11434",
+        default_model: str = "qwen2.5-coder:7b-instruct-q5_K_M",
+        api_key: Optional[str] = None,
+    ):
         self.base_url = base_url.rstrip("/")
         self.default_model = default_model
+        self.api_key = (
+            api_key
+            or os.getenv("OPENROUTER_API_KEY")
+            or os.getenv("DEEPSEEK_API_KEY")
+            or os.getenv("OPENAI_API_KEY")
+        )
         # Detect whether endpoint is Ollama native or OpenAI-compatible
         self.is_ollama_native = "/v1" not in self.base_url and "11434" in self.base_url
 
@@ -24,7 +36,10 @@ class LLMEngine:
                         models = [m.get("name", "") for m in resp.json().get("models", [])]
                         return True, f"Ollama online ({len(models)} models available: {', '.join(models[:3])}...)"
                 else:
-                    resp = await client.get(f"{self.base_url}/models")
+                    headers = {}
+                    if self.api_key:
+                        headers["Authorization"] = f"Bearer {self.api_key}"
+                    resp = await client.get(f"{self.base_url}/models", headers=headers)
                     if resp.status_code == 200:
                         return True, "OpenAI-compatible server online"
         except Exception as e:
@@ -131,8 +146,15 @@ class LLMEngine:
             payload["tools"] = tools
             payload["tool_choice"] = "auto"
 
+        headers: Dict[str, str] = {"Content-Type": "application/json"}
+        if self.api_key:
+            headers["Authorization"] = f"Bearer {self.api_key}"
+        if "openrouter.ai" in self.base_url:
+            headers["HTTP-Referer"] = "https://github.com/ullu1221/antigravity-godmode-cli"
+            headers["X-Title"] = "Antigravity Godmode CLI"
+
         async with httpx.AsyncClient(timeout=180.0) as client:
-            resp = await client.post(url, json=payload)
+            resp = await client.post(url, json=payload, headers=headers)
             resp.raise_for_status()
             data = resp.json()
 

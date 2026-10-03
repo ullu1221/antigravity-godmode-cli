@@ -68,3 +68,14 @@ def test_context_manager_pruning():
     last_msg = ctx.get_messages()[-1]
     assert "Truncated" in last_msg.content
     assert len(last_msg.content) < 500
+
+
+def test_engine_api_key_and_headers():
+    engine = LLMEngine(
+        base_url="https://openrouter.ai/api/v1",
+        default_model="qwen/qwen-2.5-coder-32b-instruct",
+        api_key="sk-test-key-12345"
+    )
+    assert engine.api_key == "sk-test-key-12345"
+    assert not engine.is_ollama_native
+

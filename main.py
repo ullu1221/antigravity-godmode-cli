@@ -80,20 +80,22 @@ async def main():
     parser.add_argument("prompt", nargs="*", help="Optional one-shot task or query to execute autonomously")
     parser.add_argument("-m", "--model", help="Override the active model (e.g. hermes3:8b, qwen2.5-coder:7b-instruct-q5_K_M)")
     parser.add_argument("-d", "--cwd", help="Set the initial working directory")
+    parser.add_argument("--endpoint", "--base-url", dest="endpoint", help="Custom LLM API base URL (e.g. https://openrouter.ai/api/v1)")
+    parser.add_argument("--api-key", help="API key for custom/cloud LLM endpoint (or set OPENROUTER_API_KEY / DEEPSEEK_API_KEY)")
     parser.add_argument("--tools", action="store_true", help="Print available tools and exit")
     parser.add_argument("--status", action="store_true", help="Check backend status and exit")
 
     parsed_args = parser.parse_args()
 
     config = load_config()
-    endpoint_url = config.get("endpoints", {}).get("ollama", {}).get("base_url", "http://localhost:11434")
+    endpoint_url = parsed_args.endpoint or config.get("endpoints", {}).get("ollama", {}).get("base_url", "http://localhost:11434")
     active_model = parsed_args.model or config.get("active_model", "qwen2.5-coder:7b-instruct-q5_K_M")
     initial_cwd = os.path.abspath(parsed_args.cwd) if parsed_args.cwd else os.getcwd()
     if os.path.isdir(initial_cwd):
         os.chdir(initial_cwd)
 
     # Initialize Engine & Tools
-    engine = LLMEngine(base_url=endpoint_url, default_model=active_model)
+    engine = LLMEngine(base_url=endpoint_url, default_model=active_model, api_key=parsed_args.api_key)
     registry = build_tool_registry(config, initial_cwd=initial_cwd)
     agent = AutonomousAgent(config, registry, engine, initial_cwd=initial_cwd)
     agent.set_model(active_model)
